@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Questão de Múltipla Escolha</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px;
+    }
+    .botao {
+      margin: 10px;
+      padding: 10px 20px;
+      font-size: 18px;
+      cursor: pointer;
+    }
+    .selecionado {
+      background-color: #4CAF50;
+      color: white;
+    }
+    #mensagem {
+      margin-top: 20px;
+      font-size: 18px;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <h1>Bem Vindo, {{context.user}} de {{context.idade}} anos!!</h1>
+  <h2>Escolha uma opção:</h2>
+
+  <div id="botoes-container">
+    <button class="botao" data-letra="A">A</button>
+    <button class="botao" data-letra="B">B</button>
+    <button class="botao" data-letra="C">C</button>
+    <button class="botao" data-letra="D">D</button>
+    <button class="botao" data-letra="E">E</button>
+  </div>
+
+  <button id="confirmar" class="botao" style="margin-top: 30px; background-color: #008CBA; color: white;">
+    Confirmar
+  </button>
+
+  <div id="mensagem"></div>
+
+  <script>
+    const botoes = document.querySelectorAll('.botao[data-letra]');
+    const mensagem = document.getElementById('mensagem');
+    let selecionado = null;
+
+    botoes.forEach(botao => {
+      botao.addEventListener('click', () => {
+        // Desmarcar botão anterior
+        if (selecionado) {
+          selecionado.classList.remove('selecionado');
+        }
+
+        // Marcar novo botão
+        botao.classList.add('selecionado');
+        selecionado = botao;
+
+        // Limpa a mensagem anterior
+        mensagem.textContent = '';
+      });
+    });
+
+    document.getElementById('confirmar').addEventListener('click', () => {
+  if (selecionado) {
+    const letraSelecionada = selecionado.dataset.letra;
+
+    // Enviar para a API
+    fetch('https://d947-187-43-166-0.ngrok-free.app/resposta', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ resposta: letraSelecionada })
+    })
+    .then(res => res.json())
+    .then(data => {
+      mensagem.textContent = `Resposta enviada! Servidor respondeu: ${data.mensagem}`;
+    })
+    .catch(err => {
+      console.error('Erro ao enviar:', err);
+      mensagem.textContent = 'Erro ao enviar a resposta.';
+    });
+  } else {
+    mensagem.textContent = "Por favor, selecione uma alternativa antes de confirmar.";
+  }
+});
+  </script>
+</body>
+</html>
